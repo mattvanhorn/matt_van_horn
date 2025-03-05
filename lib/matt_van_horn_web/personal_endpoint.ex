@@ -1,6 +1,11 @@
-defmodule MattVanHornWeb.Endpoint do
+defmodule MattVanHornWeb.PersonalEndpoint do
   use Phoenix.Endpoint, otp_app: :matt_van_horn
+
   @session_options Application.compile_env!(:matt_van_horn, :session_options)
+
+  def proxy_endpoint, do: MattVanHornWeb.ProxyEndpoint
+
+  # socket /live must be in the proxy endpoint
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -10,7 +15,8 @@ defmodule MattVanHornWeb.Endpoint do
     at: "/",
     from: :matt_van_horn,
     gzip: false,
-    only: MattVanHornWeb.static_paths()
+    # robots.txt is served by Beacon
+    only: ~w(assets fonts images favicon.ico)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -20,10 +26,6 @@ defmodule MattVanHornWeb.Endpoint do
     plug Phoenix.CodeReloader
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :matt_van_horn
   end
-
-  plug Phoenix.LiveDashboard.RequestLogger,
-    param_key: "request_logger",
-    cookie_key: "request_logger"
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]

@@ -7,6 +7,29 @@
 # General application configuration
 import Config
 
+signing_salt = "npTtjgbZ"
+
+config :matt_van_horn,
+       MattVanHornWeb.PersonalEndpoint,
+       url: [host: "localhost"],
+       adapter: Bandit.PhoenixAdapter,
+       render_errors: [
+         formats: [html: Beacon.Web.ErrorHTML],
+         layout: false
+       ],
+       pubsub_server: MattVanHorn.PubSub,
+       live_view: [signing_salt: signing_salt]
+
+config :matt_van_horn,
+       MattVanHornWeb.ProxyEndpoint,
+       adapter: Bandit.PhoenixAdapter,
+       pubsub_server: MattVanHorn.PubSub,
+       render_errors: [
+         formats: [html: Beacon.Web.ErrorHTML],
+         layout: false
+       ],
+       live_view: [signing_salt: signing_salt]
+
 config :ash, known_types: [AshMoney.Types.Money], custom_types: [money: AshMoney.Types.Money]
 config :ex_cldr, default_backend: MattVanHorn.Cldr
 
@@ -19,7 +42,13 @@ config :spark,
 config :matt_van_horn,
   ecto_repos: [MattVanHorn.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_domains: [MattVanHorn.Accounts]
+  ash_domains: [MattVanHorn.Accounts],
+  session_options: [
+    store: :cookie,
+    key: "_matt_van_horn_key",
+    signing_salt: signing_salt,
+    same_site: "Lax"
+  ]
 
 # Configures the endpoint
 config :matt_van_horn, MattVanHornWeb.Endpoint,
@@ -30,7 +59,7 @@ config :matt_van_horn, MattVanHornWeb.Endpoint,
     layout: false
   ],
   pubsub_server: MattVanHorn.PubSub,
-  live_view: [signing_salt: "xMVMgWZx"]
+  live_view: [signing_salt: signing_salt]
 
 # Configures the mailer
 #

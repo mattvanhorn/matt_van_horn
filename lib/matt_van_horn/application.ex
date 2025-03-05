@@ -11,14 +11,17 @@ defmodule MattVanHorn.Application do
       MattVanHornWeb.Telemetry,
       MattVanHorn.Repo,
       {DNSCluster, query: Application.get_env(:matt_van_horn, :dns_cluster_query) || :ignore},
+      {Beacon, [sites: [Application.fetch_env!(:beacon, :personal)]]},
       {Phoenix.PubSub, name: MattVanHorn.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: MattVanHorn.Finch},
+      MattVanHornWeb.PersonalEndpoint,
       # Start a worker by calling: MattVanHorn.Worker.start_link(arg)
       # {MattVanHorn.Worker, arg},
       # Start to serve requests, typically the last entry
       MattVanHornWeb.Endpoint,
-      {AshAuthentication.Supervisor, [otp_app: :matt_van_horn]}
+      {AshAuthentication.Supervisor, [otp_app: :matt_van_horn]},
+      MattVanHornWeb.ProxyEndpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

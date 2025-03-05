@@ -10,7 +10,12 @@ defmodule MattVanHorn.MixProject do
       start_permanent: Mix.env() == :prod,
       consolidate_protocols: Mix.env() != :dev,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        matt_van_horn: [
+          steps: [:assemble, &copy_beacon_files/1]
+        ]
+      ]
     ]
   end
 
@@ -95,5 +100,39 @@ defmodule MattVanHorn.MixProject do
       ],
       "phx.routes": ["phx.routes", "ash_authentication.phoenix.routes"]
     ]
+  end
+
+  defp copy_beacon_files(%{path: path} = release) do
+    build_path = Path.join([path, "bin", "_build"])
+    File.mkdir_p!(build_path)
+
+    copy_bin! = fn name, pattern, cmd ->
+      case Path.wildcard(pattern) do
+        [] ->
+          raise """
+          #{name} binary not found in the release package
+
+          You should execute the following command to download it:
+
+              #{cmd}
+
+          Note the binary must be present in the environment where the
+          release is generated, either locally or in the Dockerfile for example.
+
+          """
+
+        bin_path ->
+          for file <- bin_path do
+            File.cp!(file, Path.join(build_path, Path.basename(file)))
+          end
+      end
+    end
+
+    copy_bin!.("tailwind", "_build/tailwind-*", "mix tailwind.install --no-assets")
+    copy_bin!.("esbuild", "_build/esbuild-*", "mix esbuild.install")
+
+    File.cp!(Path.join(["assets", "css", "app.css"]), Path.join(path, "app.css"))
+
+    release
   end
 end

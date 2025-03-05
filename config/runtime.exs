@@ -1,5 +1,13 @@
 import Config
 
+config :beacon,
+  personal: [
+    site: :personal,
+    repo: MattVanHorn.Repo,
+    endpoint: MattVanHornWeb.PersonalEndpoint,
+    router: MattVanHornWeb.Router
+  ]
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration
@@ -54,21 +62,27 @@ if config_env() == :prod do
   config :matt_van_horn, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :matt_van_horn, MattVanHornWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
-    http: [
-      # Enable IPv6 and bind on all interfaces.
-      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-      # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
-      # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
-    ],
+    url: [host: host, port: 8443, scheme: "https"],
+    http: [ip: {0, 0, 0, 0, 0, 0, 0, 0}, port: 4100],
     secret_key_base: secret_key_base
 
   config :matt_van_horn,
     token_signing_secret:
       System.get_env("TOKEN_SIGNING_SECRET") ||
         raise("Missing environment variable `TOKEN_SIGNING_SECRET`!")
+
+  config :matt_van_horn, MattVanHornWeb.ProxyEndpoint,
+    check_origin: {MattVanHornWeb.ProxyEndpoint, :check_origin, []},
+    url: [port: 443, scheme: "https"],
+    http: [ip: {0, 0, 0, 0, 0, 0, 0, 0}, port: port],
+    secret_key_base: secret_key_base,
+    server: !!System.get_env("PHX_SERVER")
+
+  config :matt_van_horn, MattVanHornWeb.PersonalEndpoint,
+    url: [host: host, port: 8761, scheme: "https"],
+    http: [ip: {0, 0, 0, 0, 0, 0, 0, 0}, port: 4791],
+    secret_key_base: secret_key_base,
+    server: !!System.get_env("PHX_SERVER")
 
   # ## SSL Support
   #

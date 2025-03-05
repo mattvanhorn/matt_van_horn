@@ -1,10 +1,15 @@
 defmodule MattVanHornWeb.Router do
   use MattVanHornWeb, :router
 
+  use Beacon.Router
   use AshAuthentication.Phoenix.Router
 
   import AshAuthentication.Plug.Helpers
   use Beacon.LiveAdmin.Router
+
+  pipeline :beacon do
+    plug Beacon.Plug
+  end
 
   pipeline :beacon_admin do
     plug Beacon.LiveAdmin.Plug
@@ -41,6 +46,11 @@ defmodule MattVanHornWeb.Router do
       # If an authenticated user must *not* be present:
       # on_mount {MattVanHornWeb.LiveUserAuth, :live_no_user}
     end
+  end
+
+  scope "/", alias: MattVanHornWeb do
+    pipe_through [:browser, :beacon]
+    beacon_site "/pages", site: :personal
   end
 
   scope "/" do

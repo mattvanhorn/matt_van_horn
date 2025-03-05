@@ -21,7 +21,7 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git \
+RUN apt-get update -y && apt-get install -y build-essential git npm \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
@@ -52,6 +52,7 @@ COPY lib lib
 COPY assets assets
 
 # compile assets
+RUN npm install --prefix assets
 RUN mix assets.deploy
 
 # Compile the release
@@ -61,6 +62,8 @@ RUN mix compile
 COPY config/runtime.exs config/
 
 COPY rel rel
+RUN mix tailwind.install --no-assets --if-missing
+RUN mix esbuild.install --if-missing
 RUN mix release
 
 # start a new build stage so that the final image will only contain

@@ -1,4 +1,20 @@
 import Config
+secret_key_base = "6ppAsPtLGKFTuwVQ++fDT3Y/e9scyttz7hQCNt5k5HNdnzp8aOr6YoT+Fh6lINQy"
+
+config :matt_van_horn,
+       MattVanHornWeb.PersonalEndpoint,
+       http: [ip: {127, 0, 0, 1}, port: 4791],
+       check_origin: false,
+       code_reloader: true,
+       debug_errors: true,
+       secret_key_base: secret_key_base
+
+config :matt_van_horn,
+       MattVanHornWeb.ProxyEndpoint,
+       http: [ip: {127, 0, 0, 1}, port: 4000],
+       check_origin: false,
+       debug_errors: true,
+       secret_key_base: secret_key_base
 
 # Configure your database
 config :matt_van_horn, MattVanHorn.Repo,
@@ -19,11 +35,11 @@ config :matt_van_horn, MattVanHorn.Repo,
 # Binding to loopback ipv4 address prevents access from other machines.
 config :matt_van_horn, MattVanHornWeb.Endpoint,
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {0, 0, 0, 0}, port: 4100],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "hNzbWHjaXdFBX9gDrQTsc84QqicOBtaUFLvzZi0tdseSD/20Iyv4d6fe9xhSNMNj",
+  secret_key_base: secret_key_base,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:matt_van_horn, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:matt_van_horn, ~w(--watch)]}
